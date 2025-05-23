@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>전자봉투 생성</title>
+
+  <!-- CSS Files -->
+  <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
+</head>
+<body>
+  <div class="wrapper">
+    <!-- 공통 사이드바 -->
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-panel">
+      <!-- 공통 헤더 -->
+      <div th:replace="~{fragments/header::header}"></div>
+      <!-- 개별 페이지 콘텐츠 들어갈 자리 -->
+      <div layout:fragment="content" class="content"></div>
+    </div>
+  </div>
+
+  <script src="/assets/js/core/jquery.min.js"></script>
+  <script src="/assets/js/core/popper.min.js"></script>
+  <script src="/assets/js/core/bootstrap.min.js"></script>
+
+ <script>
+   $(document).ready(function () {
+     $('.sidebar .nav a').on('click', function(e) {
+       e.preventDefault();
+       const newTitle = $(this).data('title');
+       if (newTitle) {
+         $('#page-title').text(newTitle);
+       }
+       $('.content').load($(this).attr('href') + ' .content > *');
+     });
+   });
+  </script>
+</body>
+</html>
