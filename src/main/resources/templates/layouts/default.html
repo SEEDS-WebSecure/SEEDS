@@ -18,7 +18,7 @@
 
     <div class="main-panel">
       <!-- 공통 헤더 -->
-      <div th:replace="~{fragments/header::header}"></div>
+      <div th:replace="~{fragments/header :: header('컨설턴트')}"></div>
       <!-- 개별 페이지 콘텐츠 들어갈 자리 -->
       <div layout:fragment="content" class="content"></div>
     </div>
