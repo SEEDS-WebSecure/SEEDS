@@ -1,0 +1,74 @@
+<!-- 전자봉투 상세 확인 화면 -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}"
+      lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>전자봉투 조회하기</title>
+
+    <!-- CSS Files -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-user">
+                <div class="card-header">
+                    <h5 class="card-title">전자봉투 조회하기</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>보내는 사람</label>
+                                <div class="form-control-plaintext" th:text="${sender}">홍길동</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>받는 사람</label>
+                                <div class="form-control-plaintext" th:text="${receiver}">김철수</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>메시지</label>
+                                <pre th:text="${message}">이것은 예시 메시지입니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>검증 결과</label>
+                                <div class="form-control-plaintext" th:text="${result}">검증 완료</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="d-flex justify-content-end">
+                                <a href="/student/envelopes" class="btn btn-secondary">뒤로가기</a>
+                                <!-- 또는 history.back()을 쓰려면:
+                                <button type="button" onclick="history.back()" class="btn btn-secondary">뒤로가기</button>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
