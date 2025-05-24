@@ -1,0 +1,71 @@
+<!--전자봉투 확인하는 화면: 수험생 이름 입력창 + 조회 버튼 -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}"
+      lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>전자봉투 조회하기</title>
+
+    <!-- CSS Files -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-user">
+                <div class="card-header">
+                    <h5 class="card-title">전자봉투 조회하기</h5>
+                </div>
+                <div class="card-body">
+                    <form action="#" th:action="@{/envelopes/student/results}" th:object="${searchForm}" method="get">
+                        <div class="row">
+                            <div class="col-md-6 pr-1">
+                                <div class="form-group">
+                                    <label for="receiver">수험생 이름</label>
+                                    <input type="text" id="receiver" name="receiver" th:value="${receiver}" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">조회하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- 조회 결과 리스트 -->
+                    <div th:if="${envelopeList != null}">
+                        <hr/>
+                        <h5>조회 결과</h5>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>전자봉투 ID</th>
+                                <th>보낸 사람</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="envelope : ${envelopeList}">
+                                <td>
+                                    <a th:href="@{/envelopes/student/results/{id}/detail(id=${envelope.id})}" th:text="${envelope.id}">ID</a>
+                                </td>
+                                <td th:text="${envelope.sender}">보낸 사람</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
