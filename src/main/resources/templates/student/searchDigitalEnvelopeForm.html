@@ -23,7 +23,7 @@
                     <h5 class="card-title">전자봉투 조회하기</h5>
                 </div>
                 <div class="card-body">
-                    <form action="#" th:action="@{/student/envelopes/results}" th:object="${searchForm}" method="get">
+                    <form action="#" th:action="@{/envelopes/student/results}" th:object="${searchForm}" method="get">
                         <div class="row">
                             <div class="col-md-6 pr-1">
                                 <div class="form-group">
@@ -54,7 +54,7 @@
                             <tbody>
                             <tr th:each="envelope : ${envelopeList}">
                                 <td>
-                                    <a th:href="@{/student/envelopes/detail/{id}(id=${envelope.id})}" th:text="${envelope.id}">ID</a>
+                                    <a th:href="@{/envelopes/student/results/{id}/detail(id=${envelope.id})}" th:text="${envelope.id}">ID</a>
                                 </td>
                                 <td th:text="${envelope.sender}">보낸 사람</td>
                             </tr>
