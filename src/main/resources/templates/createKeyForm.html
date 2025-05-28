@@ -25,32 +25,32 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="name">이름</label>
-                                    <input type="text" id="name" name="name" th:value="${name}" class="form-control" required />
+                                    <label th:for="name">이름</label>
+                                    <input type="text" th:field="*{name}" class="form-control" required />
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="secretKeyName">대칭키 파일명</label>
-                                    <input type="text" id="secretKeyName" name="secretKeyName" th:value="${secretKeyFName}" class="form-control" required />
+                                    <label th:for="secretKeyFileName">대칭키 파일명</label>
+                                    <input type="text" th:field="*{secretKeyFileName}" class="form-control" required />
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="publicKeyName">공개키 파일명</label>
-                                    <input type="text" id="publicKeyName" name="publicKeyName" th:value="${publicKeyFName}" class="form-control" required />
+                                    <label th:for="publicKeyFileName">공개키 파일명</label>
+                                    <input type="text" th:field="*{publicKeyFileName}" class="form-control" required />
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="privateKeyName">개인키 파일명</label>
-                                    <input type="text" id="privateKeyName" name="privateKeyName" th:value="${privateKeyFName}" class="form-control" required />
+                                    <label th:for="privateKeyFileName">개인키 파일명</label>
+                                    <input type="text" th:field="*{privateKeyFileName}" class="form-control" required />
                                 </div>
                             </div>
                         </div>
@@ -66,6 +66,16 @@
             </div>
         </div>
     </div>
+    <script th:inline="javascript" th:if="${isSuccess != null}">
+        /*<![CDATA[*/
+        let isSuccess = /*[[${isSuccess}]]*/ false;
+        if (isSuccess === true) {
+            alert("키 생성이 완료되었습니다.");
+        } else {
+            alert("키 생성에 실패했습니다.");
+        }
+        /*]]>*/
+    </script>
 </div>
 </body>
 </html>
