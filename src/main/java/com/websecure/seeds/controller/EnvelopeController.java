@@ -16,10 +16,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/envelopes")
 public class EnvelopeController {
-    @GetMapping
+    @GetMapping("/consultant")
     public String sendDigitalEnvelope() {
         return "sendDigitalEnvelopeForm";
     }
+
     @GetMapping("/student")
     public String studentEnvelopeHome() {
         return "student/searchDigitalEnvelopeForm";

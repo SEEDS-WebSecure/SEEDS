@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<div class="sidebar" data-color="white" data-active-color="danger" th:fragment="sidebar">
+<div class="sidebar" data-color="white" th:fragment="sidebar">
     <div class="logo">
         <div class="simple-text logo-normal">
             전자봉투 시스템
@@ -8,8 +8,15 @@
     </div>
     <div class="sidebar-wrapper">
         <ul class="nav">
-            <li class="active ">
-                <a href="#" th:href="@{/keys}" data-title="컨설턴트">
+            <li>
+                <a href="#" th:href="@{/keys}" data-title="키 생성">
+                    <i class="nc-icon nc-key-25"></i>
+                    <p>키 생성</p>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" th:href="@{/envelopes/consultant}" data-title="컨설턴트">
                     <i class="nc-icon nc-chat-33"></i>
                     <p>컨설턴트</p>
                 </a>
