@@ -44,7 +44,7 @@ public class KeyServiceImpl implements KeyService {
             keyGen.init(128);
             return keyGen.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("대칭키 생성 중 오류가 발생했습니다.");
+            throw new RuntimeException("대칭키 생성 중 오류가 발생했습니다.", e);
         }
     }
 
@@ -55,7 +55,7 @@ public class KeyServiceImpl implements KeyService {
             return keyPairGen.generateKeyPair();
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("비대칭키 생성 중 오류가 발생했습니다.");
+            throw new RuntimeException("비대칭키 생성 중 오류가 발생했습니다.", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class KeyServiceImpl implements KeyService {
                 oos.writeObject(key);
             }
         } catch (IOException e) {
-            throw new RuntimeException("파일 저장 중 오류가 발생했습니다.");
+            throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
         }
     }
 }

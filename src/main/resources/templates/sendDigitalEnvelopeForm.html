@@ -21,28 +21,36 @@
                     <h5 class="card-title">전자봉투 보내기</h5>
                 </div>
                 <div class="card-body">
-                    <form action="#" th:action="@{/keys}" th:object="${createKeyDTO}" method="post">
+                    <form action="#" th:action="@{/envelopes/consultant}" th:object="${sendEnvelopeDTO}" method="post" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6 pr-1">
                                 <div class="form-group">
-                                    <label for="sender">송신자</label>
-                                    <input type="text" id="sender" name="sender" th:value="${sender}" class="form-control" required />
+                                    <label th:for="sender">송신자</label>
+                                    <input type="text" th:field="*{sender}" class="form-control" required />
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 pr-1">
                                 <div class="form-group">
-                                    <label for="receiver">수신자</label>
-                                    <input type="text" id="receiver" name="receiver" th:value="${receiver}" class="form-control" required />
+                                    <label th:for="receiver">수신자</label>
+                                    <input type="text" th:field="*{receiver}" class="form-control" required />
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 pr-1">
                                 <div class="form-group">
-                                    <label for="file">전송할 파일</label>
-                                    <input type="file" id="file" name="file" class="form-control" required />
+                                    <label th:for="fileName">전송할 파일명</label>
+                                    <input type="text" th:field="*{fileName}" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 pr-1">
+                                <div class="form-group">
+                                    <label th:for="file">전송할 파일</label>
+                                    <input type="file" th:field="*{file}" class="form-control" required />
                                 </div>
                             </div>
                         </div>
@@ -58,6 +66,16 @@
             </div>
         </div>
     </div>
+    <script th:inline="javascript" th:if="${isSuccess != null}">
+        /*<![CDATA[*/
+        let isSuccess = /*[[${isSuccess}]]*/ false;
+        if (isSuccess === true) {
+            alert("전자봉투가 성공적으로 전송되었습니다.");
+        } else {
+            alert("전자봉투 전송에 실패했습니다.");
+        }
+        /*]]>*/
+    </script>
 </div>
 </body>
 </html>
