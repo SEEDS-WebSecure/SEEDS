@@ -7,7 +7,7 @@ import java.io.*;
 
 @Builder
 @Getter
-public class EnvelopeData {
+public class EnvelopeData implements Serializable {
     private byte[] encryptedData;
     private byte[] encryptedKey;
 
