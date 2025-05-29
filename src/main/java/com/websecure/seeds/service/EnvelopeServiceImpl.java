@@ -24,7 +24,6 @@ public class EnvelopeServiceImpl implements EnvelopeService {
     @Override
     public Envelope sendDigitalEnvelope(SendEnvelopeDTO request) {
         try {
-            System.out.println(request.getSender());
             // 송신자
             User sender = userRepository.findByName(request.getSender())
                     .orElseThrow(() -> new RuntimeException("존재하지 않는 송신자 이름입니다."));
@@ -84,7 +83,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
 
     public static byte[] getFileHash(byte[] data) {
         try {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             messageDigest.update(data);
             return messageDigest.digest();
 
