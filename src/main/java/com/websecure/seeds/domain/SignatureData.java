@@ -3,10 +3,7 @@ package com.websecure.seeds.domain;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.security.PublicKey;
 
 @Builder
@@ -24,6 +21,17 @@ public class SignatureData implements Serializable {
             return baos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException("직렬화 중 오류가 발생하였습니다.", e);
+        }
+    }
+
+    public static SignatureData deserializeData(byte[] data) {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
+             ObjectInputStream ois = new ObjectInputStream(bis)) {
+
+            return (SignatureData) ois.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("SignatureData 역직렬화 중 오류가 발생했습니다.", e);
         }
     }
 }
