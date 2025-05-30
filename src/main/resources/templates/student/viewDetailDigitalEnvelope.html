@@ -27,7 +27,7 @@
                         <div class="col-md-6 pr-1">
                             <div class="form-group">
                                 <label>보내는 사람</label>
-                                <div class="form-control-plaintext" th:text="${sender}">홍길동</div>
+                                <input type="text" id="sender" name="sender" th:value="${verifySignDTO.sender}" class="form-control-plaintext" readonly/>
                             </div>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                         <div class="col-md-6 pr-1">
                             <div class="form-group">
                                 <label>받는 사람</label>
-                                <div class="form-control-plaintext" th:text="${receiver}">김철수</div>
+                                <input type="text" id="receiver" name="receiver"  th:value="${verifySignDTO.receiver}" class="form-control-plaintext" readonly/>
                             </div>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
                         <div class="col-md-6 pr-1">
                             <div class="form-group">
                                 <label>메시지</label>
-                                <pre th:text="${message}">이것은 예시 메시지입니다.</pre>
+                                <textarea id="content" name="content" rows="5" readonly class="form-control-plaintext" th:text="${verifySignDTO.content}"></textarea>
                             </div>
                         </div>
                     </div>
@@ -51,7 +51,8 @@
                         <div class="col-md-6 pr-1">
                             <div class="form-group">
                                 <label>검증 결과</label>
-                                <div class="form-control-plaintext" th:text="${result}">검증 완료</div>
+                                <div class="form-control-plaintext"
+                                     th:text="${verifySignDTO.verified} ? '검증 완료' : '검증 실패'"></div>
                             </div>
                         </div>
                     </div>
