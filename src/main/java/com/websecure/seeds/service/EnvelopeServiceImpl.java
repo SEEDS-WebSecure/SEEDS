@@ -2,6 +2,7 @@ package com.websecure.seeds.service;
 
 import com.websecure.seeds.domain.*;
 import com.websecure.seeds.dto.SendEnvelopeDTO;
+import com.websecure.seeds.dto.VerifySignDTO;
 import com.websecure.seeds.repository.EnvelopeRepository;
 import com.websecure.seeds.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -139,12 +140,12 @@ public class EnvelopeServiceImpl implements EnvelopeService {
 
         /*AES 키 복원*/
         //대칭키 복호화
-        byte[] bSecretKey = decryptData("RSA",envelopeData.getEncryptedKey(), receiverPrivateKey);
+        byte[] secretKeyBytes = decryptData("RSA", envelopeData.getEncryptedKey(), receiverPrivateKey);
         //AES SecretKey 객체 생성
-        SecretKey secretKey = new SecretKeySpec(bSecretKey,"AES");
+        SecretKey secretKey = new SecretKeySpec(secretKeyBytes,"AES");
 
         //직렬화 된 데이터 복호화(대칭키 AES)로
-        byte[] serializedSignatureData = decryptData("AES",envelopeData.getEncryptedData(), secretKey);
+        byte[] serializedSignatureData = decryptData("AES", envelopeData.getEncryptedData(), secretKey);
 
         //역직렬화
         SignatureData signatureData  = SignatureData.deserializeData(serializedSignatureData);
@@ -152,7 +153,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         //원본 데이터 해시 계산
         byte[] fileHash = getFileHash(signatureData.getFile());
         //서명 복호화
-        byte[] decryptedHash = decryptData("RSA",signatureData.getSignature(), signatureData.getPublicKey());
+        byte[] decryptedHash = decryptData("RSA", signatureData.getSignature(), signatureData.getPublicKey());
 
         //해시 비교
         boolean verified = MessageDigest.isEqual(fileHash, decryptedHash);

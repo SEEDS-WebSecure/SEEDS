@@ -1,7 +1,7 @@
 package com.websecure.seeds.controller;
 
 import com.websecure.seeds.domain.Envelope;
-import com.websecure.seeds.domain.VerifySignDTO;
+import com.websecure.seeds.dto.VerifySignDTO;
 import com.websecure.seeds.dto.SendEnvelopeDTO;
 import com.websecure.seeds.service.EnvelopeService;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ public class EnvelopeController {
     }
 
     // 조회 결과 화면
-    @GetMapping("student/results")
+    @GetMapping("/student/results")
     public String searchDigitalEnvelopes(@RequestParam String receiver, Model model) {
         List<Envelope> envelopeList = envelopeService.findEnvelopeList(receiver);
 
@@ -53,7 +53,7 @@ public class EnvelopeController {
 
 
     // 상세 페이지: 전자봉투 하나 조회
-    @GetMapping("student/results/{envelopeId}/detail")
+    @GetMapping("/student/results/{envelopeId}/detail")
     public String viewEnvelopeDetail(@PathVariable Long envelopeId, @RequestParam String receiver, Model model) {
         VerifySignDTO verifySignDTO =  envelopeService.verifySign(envelopeId,receiver);
         model.addAttribute("verifySignDTO",verifySignDTO);

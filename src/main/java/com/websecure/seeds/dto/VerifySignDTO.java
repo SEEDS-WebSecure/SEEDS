@@ -1,4 +1,4 @@
-package com.websecure.seeds.domain;
+package com.websecure.seeds.dto;
 
 import lombok.Builder;
 import lombok.Getter;

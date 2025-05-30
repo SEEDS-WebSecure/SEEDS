@@ -1,7 +1,7 @@
 package com.websecure.seeds.service;
 
 import com.websecure.seeds.domain.Envelope;
-import com.websecure.seeds.domain.VerifySignDTO;
+import com.websecure.seeds.dto.VerifySignDTO;
 import com.websecure.seeds.dto.SendEnvelopeDTO;
 
 import java.util.List;
