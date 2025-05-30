@@ -139,12 +139,12 @@ public class EnvelopeServiceImpl implements EnvelopeService {
 
         /*AES 키 복원*/
         //대칭키 복호화
-        byte[] bSecretKey = decryptData(envelopeData.getEncryptedKey(), receiverPrivateKey);
+        byte[] bSecretKey = decryptData("RSA",envelopeData.getEncryptedKey(), receiverPrivateKey);
         //AES SecretKey 객체 생성
         SecretKey secretKey = new SecretKeySpec(bSecretKey,"AES");
 
         //직렬화 된 데이터 복호화(대칭키 AES)로
-        byte[] serializedSignatureData = decryptData(envelopeData.getEncryptedData(), secretKey);
+        byte[] serializedSignatureData = decryptData("AES",envelopeData.getEncryptedData(), secretKey);
 
         //역직렬화
         SignatureData signatureData  = SignatureData.deserializeData(serializedSignatureData);
@@ -152,7 +152,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         //원본 데이터 해시 계산
         byte[] fileHash = getFileHash(signatureData.getFile());
         //서명 복호화
-        byte[] decryptedHash = decryptData(signatureData.getSignature(), signatureData.getPublicKey());
+        byte[] decryptedHash = decryptData("RSA",signatureData.getSignature(), signatureData.getPublicKey());
 
         //해시 비교
         boolean verified = MessageDigest.isEqual(fileHash, decryptedHash);
@@ -168,22 +168,13 @@ public class EnvelopeServiceImpl implements EnvelopeService {
 
 
 
-    public byte[] decryptData(byte[] data, Key key) {
-        byte[] decrypted = null;
-        Cipher c1 = null;
+    public static byte[] decryptData(String algorithm, byte[] data, Key key) {
         try {
-            c1 = Cipher.getInstance(key.getAlgorithm());
-            c1.init(Cipher.DECRYPT_MODE, key);
-            decrypted = c1.doFinal(data);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e1) {
-            e1.printStackTrace();
-        } catch (InvalidKeyException e1) {
-            e1.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
+            Cipher cipher = Cipher.getInstance(algorithm);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            throw new RuntimeException("데이터 복호화 중 오류가 발생했습니다.", e);
         }
-        return decrypted;
     }
 }
