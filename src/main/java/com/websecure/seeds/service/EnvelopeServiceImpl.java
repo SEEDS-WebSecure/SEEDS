@@ -3,6 +3,8 @@ package com.websecure.seeds.service;
 import com.websecure.seeds.domain.*;
 import com.websecure.seeds.dto.SendEnvelopeDTO;
 import com.websecure.seeds.dto.VerifySignDTO;
+import com.websecure.seeds.exception.CryptoOperationException;
+import com.websecure.seeds.exception.SignatureVerificationException;
 import com.websecure.seeds.repository.EnvelopeRepository;
 import com.websecure.seeds.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,8 @@ import java.util.List;
 public class EnvelopeServiceImpl implements EnvelopeService {
     private final UserRepository userRepository;
     private final EnvelopeRepository envelopeRepository;
-
+    private static final String ALGO_RSA = "RSA";
+    private static final String ALGO_AES = "AES";
     @Override
     public Envelope sendDigitalEnvelope(SendEnvelopeDTO request) {
         try {
@@ -126,7 +129,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
     //검증하기
     @Override
     @Transactional
-    public VerifySignDTO verifySign(Long envelopeId, String receiver) {
+    public VerifySignDTO verifySign(Long envelopeId, String receiver) throws CryptoOperationException, SignatureVerificationException {
         User user = userRepository.findByName(receiver)
                 .orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
         Envelope envelope = envelopeRepository.findById(envelopeId)
@@ -140,12 +143,12 @@ public class EnvelopeServiceImpl implements EnvelopeService {
 
         /*AES 키 복원*/
         //대칭키 복호화
-        byte[] secretKeyBytes = decryptData("RSA", envelopeData.getEncryptedKey(), receiverPrivateKey);
+        byte[] secretKeyBytes = decryptData(ALGO_RSA, envelopeData.getEncryptedKey(), receiverPrivateKey);
         //AES SecretKey 객체 생성
-        SecretKey secretKey = new SecretKeySpec(secretKeyBytes,"AES");
+        SecretKey secretKey = new SecretKeySpec(secretKeyBytes,ALGO_AES);
 
         //직렬화 된 데이터 복호화(대칭키 AES)로
-        byte[] serializedSignatureData = decryptData("AES", envelopeData.getEncryptedData(), secretKey);
+        byte[] serializedSignatureData = decryptData(ALGO_AES, envelopeData.getEncryptedData(), secretKey);
 
         //역직렬화
         SignatureData signatureData  = SignatureData.deserializeData(serializedSignatureData);
@@ -153,29 +156,30 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         //원본 데이터 해시 계산
         byte[] fileHash = getFileHash(signatureData.getFile());
         //서명 복호화
-        byte[] decryptedHash = decryptData("RSA", signatureData.getSignature(), signatureData.getPublicKey());
+        byte[] decryptedHash = decryptData(ALGO_RSA, signatureData.getSignature(), signatureData.getPublicKey());
 
         //해시 비교
-        boolean verified = MessageDigest.isEqual(fileHash, decryptedHash);
-
+        if (!MessageDigest.isEqual(fileHash, decryptedHash)) {
+            throw new SignatureVerificationException("서명 검증에 실패했습니다.");
+        }
         // 8. DTO 반환
         return VerifySignDTO.builder()
                 .sender(envelope.getSender())
                 .receiver(envelope.getReceiver())
                 .content(new String(signatureData.getFile()))
-                .isVerified(verified)
+                .isVerified(true)
                 .build();
     }
 
 
 
-    public static byte[] decryptData(String algorithm, byte[] data, Key key) {
+    private static byte[] decryptData(String algorithm, byte[] data, Key key) throws CryptoOperationException {
         try {
             Cipher cipher = Cipher.getInstance(algorithm);
             cipher.init(Cipher.DECRYPT_MODE, key);
             return cipher.doFinal(data);
         } catch (Exception e) {
-            throw new RuntimeException("데이터 복호화 중 오류가 발생했습니다.", e);
+            throw new CryptoOperationException("데이터 복호화 중 오류가 발생했습니다.", e);
         }
     }
 }
