@@ -15,6 +15,7 @@ import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.*;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -42,6 +43,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
 
             // 전자서명 생성: 원문의 해시값을 송신자의 사설키로 암호화
             byte[] signature = encryptData("RSA", fileHash, senderPrivateKey);
+            Arrays.fill(fileHash, (byte) 0);
 
             // [전자서명 + 원문 + 송신자의 공개키]를 SignatureData 객체로 묶음
             SignatureData signatureData = SignatureData.builder()
@@ -50,6 +52,8 @@ public class EnvelopeServiceImpl implements EnvelopeService {
                     .publicKey(senderPublicKey)
                     .build();
 
+            Arrays.fill(fileBytes, (byte) 0);
+
             // [전자서명 + 원문 + 송신자의 공개키]를 묶은 SignatureData 객체를 직렬화
             byte[] serializedSignatureData = SignatureData.serializeData(signatureData);
 
@@ -57,6 +61,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
 
             // 직렬화된 데이터를 대칭키로 암호화
             byte[] encryptedData = encryptData("AES", serializedSignatureData, secretKey);
+            Arrays.fill(serializedSignatureData, (byte) 0);
 
             PublicKey receiverPublicKey = (PublicKey) loadKeyFromFile(receiver.getPublicKeyFileName());
             // 대칭키를 수신자의 공개키로 암호화
@@ -66,6 +71,9 @@ public class EnvelopeServiceImpl implements EnvelopeService {
                     .encryptedData(encryptedData)
                     .encryptedKey(encryptedKey)
                     .build();
+
+            Arrays.fill(encryptedData, (byte) 0);
+            Arrays.fill(encryptedKey, (byte) 0);
 
             // 암호화된 문서 + 암호화된 대칭키를 파일에 저장
             EnvelopeData.saveEnvelopeDataToFile(request.getFileName(), envelopeData);
@@ -83,7 +91,6 @@ public class EnvelopeServiceImpl implements EnvelopeService {
             throw new RuntimeException("파일 처리 중 오류가 발생했습니다.", e);
         }
     }
-
 
     public static byte[] getFileHash(byte[] data) {
         try {
