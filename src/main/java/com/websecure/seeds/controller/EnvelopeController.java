@@ -3,6 +3,8 @@ package com.websecure.seeds.controller;
 import com.websecure.seeds.domain.Envelope;
 import com.websecure.seeds.dto.VerifySignDTO;
 import com.websecure.seeds.dto.SendEnvelopeDTO;
+import com.websecure.seeds.exception.CryptoOperationException;
+import com.websecure.seeds.exception.SignatureVerificationException;
 import com.websecure.seeds.service.EnvelopeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -54,7 +56,7 @@ public class EnvelopeController {
 
     // 상세 페이지: 전자봉투 하나 조회
     @GetMapping("/student/results/{envelopeId}/detail")
-    public String viewEnvelopeDetail(@PathVariable Long envelopeId, @RequestParam String receiver, Model model) {
+    public String viewEnvelopeDetail(@PathVariable Long envelopeId, @RequestParam String receiver, Model model) throws CryptoOperationException, SignatureVerificationException {
         VerifySignDTO verifySignDTO =  envelopeService.verifySign(envelopeId,receiver);
         model.addAttribute("verifySignDTO",verifySignDTO);
         return "student/viewDetailDigitalEnvelope";
