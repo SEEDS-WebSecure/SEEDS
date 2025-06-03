@@ -25,6 +25,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
     private final EnvelopeRepository envelopeRepository;
     private static final String ALGO_RSA = "RSA";
     private static final String ALGO_AES = "AES";
+
     @Override
     public Envelope sendDigitalEnvelope(SendEnvelopeDTO request) {
         try {
@@ -52,10 +53,9 @@ public class EnvelopeServiceImpl implements EnvelopeService {
                     .publicKey(senderPublicKey)
                     .build();
 
-            Arrays.fill(fileBytes, (byte) 0);
-
             // [전자서명 + 원문 + 송신자의 공개키]를 묶은 SignatureData 객체를 직렬화
             byte[] serializedSignatureData = SignatureData.serializeData(signatureData);
+            Arrays.fill(fileBytes, (byte) 0);
 
             SecretKey secretKey = (SecretKey) loadKeyFromFile(sender.getSecretKeyFileName());
 
@@ -68,15 +68,15 @@ public class EnvelopeServiceImpl implements EnvelopeService {
             byte[] encryptedKey = encryptData("RSA", secretKey.getEncoded(), receiverPublicKey);
 
             EnvelopeData envelopeData = EnvelopeData.builder()
-                    .encryptedData(encryptedData)
-                    .encryptedKey(encryptedKey)
+                    .encryptedData(Arrays.copyOf(encryptedData, encryptedData.length))
+                    .encryptedKey(Arrays.copyOf(encryptedKey, encryptedKey.length))
                     .build();
-
-            Arrays.fill(encryptedData, (byte) 0);
-            Arrays.fill(encryptedKey, (byte) 0);
 
             // 암호화된 문서 + 암호화된 대칭키를 파일에 저장
             EnvelopeData.saveEnvelopeDataToFile(request.getFileName(), envelopeData);
+
+            Arrays.fill(encryptedData, (byte) 0);
+            Arrays.fill(encryptedKey, (byte) 0);
 
             // DB에 저장
             Envelope envelope = Envelope.builder()
@@ -177,8 +177,6 @@ public class EnvelopeServiceImpl implements EnvelopeService {
                 .isVerified(true)
                 .build();
     }
-
-
 
     private static byte[] decryptData(String algorithm, byte[] data, Key key) throws CryptoOperationException {
         try {
