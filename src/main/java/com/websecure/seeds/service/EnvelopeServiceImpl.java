@@ -25,6 +25,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
     private final EnvelopeRepository envelopeRepository;
     private static final String ALGO_RSA = "RSA";
     private static final String ALGO_AES = "AES";
+    private static final String ALGO_SIGN = "SHA1withRSA";
 
     @Override
     public Envelope sendDigitalEnvelope(SendEnvelopeDTO request) {
@@ -36,15 +37,12 @@ public class EnvelopeServiceImpl implements EnvelopeService {
             User receiver = userRepository.findByName(request.getReceiver())
                     .orElseThrow(() -> new RuntimeException("존재하지 않는 수신자 이름입니다."));
 
-            byte[] fileBytes = request.getFile().getBytes();
-            byte[] fileHash = getFileHash(fileBytes);
-
             PrivateKey senderPrivateKey = (PrivateKey) loadKeyFromFile(sender.getPrivateKeyFileName());
             PublicKey senderPublicKey = (PublicKey) loadKeyFromFile(sender.getPublicKeyFileName());
 
-            // 전자서명 생성: 원문의 해시값을 송신자의 사설키로 암호화
-            byte[] signature = encryptData("RSA", fileHash, senderPrivateKey);
-            Arrays.fill(fileHash, (byte) 0);
+            // 전자서명 생성
+            byte[] fileBytes = request.getFile().getBytes();
+            byte[] signature = createSignature(fileBytes, senderPrivateKey);
 
             // [전자서명 + 원문 + 송신자의 공개키]를 SignatureData 객체로 묶음
             SignatureData signatureData = SignatureData.builder()
@@ -60,12 +58,13 @@ public class EnvelopeServiceImpl implements EnvelopeService {
             SecretKey secretKey = (SecretKey) loadKeyFromFile(sender.getSecretKeyFileName());
 
             // 직렬화된 데이터를 대칭키로 암호화
-            byte[] encryptedData = encryptData("AES", serializedSignatureData, secretKey);
+            byte[] encryptedData = encryptData(ALGO_AES, serializedSignatureData, secretKey);
             Arrays.fill(serializedSignatureData, (byte) 0);
 
             PublicKey receiverPublicKey = (PublicKey) loadKeyFromFile(receiver.getPublicKeyFileName());
+
             // 대칭키를 수신자의 공개키로 암호화
-            byte[] encryptedKey = encryptData("RSA", secretKey.getEncoded(), receiverPublicKey);
+            byte[] encryptedKey = encryptData(ALGO_RSA, secretKey.getEncoded(), receiverPublicKey);
 
             EnvelopeData envelopeData = EnvelopeData.builder()
                     .encryptedData(Arrays.copyOf(encryptedData, encryptedData.length))
@@ -92,14 +91,16 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         }
     }
 
-    public static byte[] getFileHash(byte[] data) {
+    public static byte[] createSignature(byte[] data, PrivateKey privateKey) {
         try {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update(data);
-            return messageDigest.digest();
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("파일 해시 생성 중 오류가 발생했습니다.", e);
+            Signature sig = Signature.getInstance(ALGO_SIGN);
+            sig.initSign(privateKey);
+            sig.update(data);
+            return sig.sign();
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException("전자서명 생성 중 오류가 발생했습니다.", e);
+        } catch (NoSuchAlgorithmException | SignatureException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -160,21 +161,15 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         //역직렬화
         SignatureData signatureData  = SignatureData.deserializeData(serializedSignatureData);
 
-        //원본 데이터 해시 계산
-        byte[] fileHash = getFileHash(signatureData.getFile());
-        //서명 복호화
-        byte[] decryptedHash = decryptData(ALGO_RSA, signatureData.getSignature(), signatureData.getPublicKey());
-
         //해시 비교
-        if (!MessageDigest.isEqual(fileHash, decryptedHash)) {
-            throw new SignatureVerificationException("서명 검증에 실패했습니다.");
-        }
+        boolean isVerified = verifySign(signatureData.getSignature(), signatureData.getFile(), signatureData.getPublicKey());
+
         // 8. DTO 반환
         return VerifySignDTO.builder()
                 .sender(envelope.getSender())
                 .receiver(envelope.getReceiver())
                 .content(new String(signatureData.getFile()))
-                .isVerified(true)
+                .isVerified(isVerified)
                 .build();
     }
 
@@ -186,5 +181,18 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         } catch (Exception e) {
             throw new CryptoOperationException("데이터 복호화 중 오류가 발생했습니다.", e);
         }
+    }
+
+    public boolean verifySign(byte[] signature, byte[] data, PublicKey publicKey) {
+        boolean isVerified = false;
+        try {
+            Signature sig = Signature.getInstance(ALGO_SIGN);
+            sig.initVerify(publicKey);
+            sig.update(data);
+            isVerified = sig.verify(signature); // 서명 검증
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            throw new RuntimeException("서명 검증 중 오류가 발생하였습니다.", e);
+        }
+        return isVerified;
     }
 }
