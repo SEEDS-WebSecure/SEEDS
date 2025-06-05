@@ -91,7 +91,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         }
     }
 
-    public static byte[] createSignature(byte[] data, PrivateKey privateKey) {
+    private static byte[] createSignature(byte[] data, PrivateKey privateKey) {
         try {
             Signature sig = Signature.getInstance(ALGO_SIGN);
             sig.initSign(privateKey);
@@ -104,7 +104,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         }
     }
 
-    public static byte[] encryptData(String algorithm, byte[] data, Key key) {
+    private static byte[] encryptData(String algorithm, byte[] data, Key key) {
         try {
             Cipher cipher = Cipher.getInstance(algorithm);
             cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -114,7 +114,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         }
     }
 
-    public static Key loadKeyFromFile(String fileName) {
+    private static Key loadKeyFromFile(String fileName) {
         try (FileInputStream fis = new FileInputStream(fileName)) {
             try (ObjectInputStream ois = new ObjectInputStream(fis)) {
                 return (Key) ois.readObject();
@@ -183,7 +183,7 @@ public class EnvelopeServiceImpl implements EnvelopeService {
         }
     }
 
-    public boolean verifySign(byte[] signature, byte[] data, PublicKey publicKey) {
+    private boolean verifySign(byte[] signature, byte[] data, PublicKey publicKey) {
         boolean isVerified = false;
         try {
             Signature sig = Signature.getInstance(ALGO_SIGN);
